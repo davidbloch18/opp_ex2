@@ -3,22 +3,22 @@ import java.util.List;
 
 public class Instructor {
     private int hourly_rate;
-    private List<Session> admitted_sessions = new ArrayList<>();
+    private List<SessionType> admitted_sessions = new ArrayList<>();
     private Person person;
 
     // Private constructor
-    private Instructor(Person p, int hourly_rate) {
+    private Instructor(Person p, int hourly_rate, List<SessionType> admitted_sessions) {
         this.person = p;
         this.hourly_rate = hourly_rate;
         this.admitted_sessions = new ArrayList<>();
     }
 
     // Factory method to create an instance
-    public static Instructor createInstructor(Person p, int hourly_rate, List<Session> admitted_sessions) {
+    public static Instructor createInstructor(Person p, int hourly_rate, List<SessionType> admitted_sessions) {
         if (!isCallerSecretary()) {
             throw new SecurityException("Only the Secretary can create an Instructor.");
         }
-        return new Instructor(p, hourly_rate);
+        return new Instructor(p, hourly_rate, admitted_sessions);
     }
 
     // Helper method to verify the caller
@@ -40,12 +40,12 @@ public class Instructor {
         this.hourly_rate = hourly_rate;
     }
 
-    public List<Session> getAdmittedSessions() {
+    public List<SessionType> getAdmittedSessions() {
         return admitted_sessions;
     }
 
-    public void addAdmittedSession(Session session) {
-        this.admitted_sessions.add(session);
+    public void addAdmittedSession(SessionType sessionType) {
+        this.admitted_sessions.add(sessionType);
     }
 
     public Person getPerson() {

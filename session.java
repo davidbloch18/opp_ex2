@@ -4,28 +4,26 @@ public class Session {
 
     private SessionType sessionType;
     private ForumType sessionForum;
-    private String date;
-    private String time;
+    private String date_and_time;
     private Instructor admittedInstructor;
     private List<Client> attendees;
 
     // Private constructor
-    private Session(SessionType sessionType, String date, String time, Instructor admittedInstructor,
+    private Session(SessionType sessionType, String date_and_time, Instructor admittedInstructor,
             ForumType sessionForum) {
         this.sessionType = sessionType;
         this.sessionForum = sessionForum;
-        this.date = date;
-        this.time = time;
+        this.date_and_time = date_and_time;
         this.admittedInstructor = admittedInstructor;
     }
 
     // Factory method to create a new Session
-    public static Session createSession(SessionType SessionType, String date, String time,
+    public static Session createSession(SessionType SessionType, String date_and_time,
             Instructor admittedInstructor, ForumType sessionForum) {
         if (!isCallerSecretary()) {
             throw new SecurityException("Only the Secretary can create a Session.");
         }
-        return new Session(SessionType, date, time, admittedInstructor, sessionForum);
+        return new Session(SessionType, date_and_time, admittedInstructor, sessionForum);
     }
 
     // Helper method to verify the caller
@@ -47,20 +45,12 @@ public class Session {
         this.sessionType = sessionType;
     }
 
-    public String getDate() {
-        return date;
+    public String getDate_and_Time() {
+        return date_and_time;
     }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
+    public void setDate_and_Time(String date_and_time) {
+        this.date_and_time = date_and_time;
     }
 
     public void setInstructor(Instructor admittedInstructor) {

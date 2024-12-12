@@ -7,9 +7,9 @@ public class Gym {
         this.name = name;
     }
 
-    public static Gym getInstance(String name) {
+    public static Gym getInstance() {
         if (instance == null)
-            instance = new Gym(name);
+            instance = new Gym("Gym Name default");
         return instance;
     }
 

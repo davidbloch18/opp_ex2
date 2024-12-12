@@ -58,4 +58,8 @@ public class Client {
     public Person getPerson() {
         return person;
     }
+
+    public String getName() {
+        return person.getName();
+    }
 }

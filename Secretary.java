@@ -61,7 +61,7 @@ public class Secretary {
     }
 
     // Method to hire an instructor
-    public Instructor hireInstructor(Person person, int hourlyRate, List<Session> admittedSessions) {
+    public Instructor hireInstructor(Person person, int hourlyRate, List<SessionType> admittedSessions) {
         Instructor newInstructor = Instructor.createInstructor(person, hourlyRate, admittedSessions);
         hired_instructors.add(newInstructor);
         return newInstructor;
@@ -75,10 +75,10 @@ public class Secretary {
     }
 
     // Method to create a session
-    public Session addSession(SessionType Type, String date, String time, Instructor instructor,
-            ForumType forum) {
-        Session session = Session.createSession(Type, date, time, instructor, forum);
-        instructor.getAdmittedSessions().add(session);
+    public Session addSession(SessionType Type, String date_and_time,
+            ForumType forum, Instructor instructor) {
+        Session session = Session.createSession(Type, date_and_time, instructor, forum);
+        instructor.getAdmittedSessions().add(Type);
         return session;
     }
 
@@ -115,7 +115,7 @@ public class Secretary {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         // Combine the session's date and time into a single LocalDateTime
-        LocalDateTime sessionDateTime = LocalDateTime.parse(session.getDate() + " " + session.getTime(), formatter);
+        LocalDateTime sessionDateTime = LocalDateTime.parse(session.getDate_and_Time(), formatter);
 
         // Get the current date and time
         LocalDateTime now = LocalDateTime.now();
@@ -151,7 +151,9 @@ public class Secretary {
             instructor.getPerson().setMoneyLeft(instructor.getPerson().getMoneyLeft() + instructor.getHourlyRate());
             gymMoney -= instructor.getHourlyRate();
         }
-        salary = 
+        person.setMoneyLeft(salary = +person.getMoneyLeft());
+        gymMoney -= salary;
+        System.out.println(gymMoney + "is the gym's money");
 
     }
 
