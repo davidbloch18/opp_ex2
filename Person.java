@@ -16,4 +16,35 @@ public class Person {
         this.gender = gender; // Assign the parameter to the field
         this.birth_date = birth_date;
     }
+
+    protected String getName() {
+        return name;
+    }
+
+    protected int getMoneyLeft() {
+        return money_left;
+    }
+
+    protected Gender getGender() {
+        return gender;
+    }
+
+    protected String getBirthDate() {
+        return birth_date;
+    }
+
+    protected boolean isAdult() {
+
+        String[] parts = birth_date.split("-");
+        int year = Integer.parseInt(parts[2]);
+        int month = Integer.parseInt(parts[1]);
+        int day = Integer.parseInt(parts[0]);
+
+        java.time.LocalDate birthDate = java.time.LocalDate.of(year, month, day);
+        java.time.LocalDate currentDate = java.time.LocalDate.now();
+        java.time.Period age = java.time.Period.between(birthDate, currentDate);
+
+        return age.getYears() >= 18;
+
+    }
 }
