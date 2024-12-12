@@ -2,11 +2,6 @@ public class Person {
     private String name;
     private int money_left;
 
-    private enum Gender {
-        male,
-        female
-    }
-
     private Gender gender; // Declare the field
     private String birth_date;
 
@@ -46,5 +41,22 @@ public class Person {
 
         return age.getYears() >= 18;
 
+    }
+
+    public void setMoneyLeft(int money_left) {
+        this.money_left = money_left;
+    }
+
+    protected boolean isElderly() {
+        String[] parts = birth_date.split("-");
+        int year = Integer.parseInt(parts[2]);
+        int month = Integer.parseInt(parts[1]);
+        int day = Integer.parseInt(parts[0]);
+
+        java.time.LocalDate birthDate = java.time.LocalDate.of(year, month, day);
+        java.time.LocalDate currentDate = java.time.LocalDate.now();
+        java.time.Period age = java.time.Period.between(birthDate, currentDate);
+
+        return age.getYears() >= 65;
     }
 }

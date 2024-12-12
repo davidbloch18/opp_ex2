@@ -3,7 +3,7 @@ import java.util.List;
 
 public class Instructor {
     private int hourly_rate;
-    private List<Session> admitted_sessions;
+    private List<Session> admitted_sessions = new ArrayList<>();
     private Person person;
 
     // Private constructor

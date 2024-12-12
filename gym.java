@@ -1,6 +1,7 @@
 public class Gym {
     private static Gym instance;
     private String name;
+    private Secretary secretary;
 
     private Gym(String name) {
         this.name = name;
@@ -13,20 +14,14 @@ public class Gym {
     }
 
     public void setSecretary(Person p, int salary) {
-        Secretary secretary = Secretary.createInstance(p, salary);
-
+        secretary = Secretary.createInstance(p, salary); // Assign to the secretary field
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    // // // getters for secretary and salary if needed
-    // // public Person getSecretary() {
-    // return secretary;
-    // // }
-
-    // // public int getSalary() {
-    // return salary;
-    // // }
+    public Secretary getSecretary() { // Update return type to Secretary
+        return secretary;
+    }
 }
