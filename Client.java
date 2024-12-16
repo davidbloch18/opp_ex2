@@ -5,6 +5,7 @@ public class Client {
     private static final List<Client> activeClients = new ArrayList<>();
     private boolean isActive;
     private Person person;
+    private List<String> messages = new ArrayList<>();
 
     // Private constructor to restrict instantiation
     private Client(Person person, boolean isActive) {
@@ -61,5 +62,15 @@ public class Client {
 
     public String getName() {
         return person.getName();
+
+    }
+
+    @Override
+    public void receiveMessage(String message) {
+        messages.add(message);
+    }
+
+    public List<String> getNotifications() {
+        return messages;
     }
 }

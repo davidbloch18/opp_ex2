@@ -10,8 +10,10 @@ public class Secretary {
     private int salary;
     private static Secretary instance;
     private List<Instructor> hired_instructors;
+    private List<Session> sessions;
     private Map<String, Integer> sessionPricing;
     private int gymMoney = -1806;
+    private List<String> actions;
 
     {
         sessionPricing = new HashMap<>();
@@ -20,6 +22,7 @@ public class Secretary {
         sessionPricing.put("ThaiBoxing", 100);
         sessionPricing.put("Ninja", 150);
     }
+
     private Map<String, Integer> sessionAttendees;
 
     {
@@ -40,6 +43,7 @@ public class Secretary {
             System.out.println("Previous Secretary instance is now invalidated.");
         }
         instance = new Secretary(person, salary);
+        instance.actions.add("A new secretary has started working at the gym: " + person.getName());
         return instance;
     }
 
@@ -49,11 +53,14 @@ public class Secretary {
     }
 
     public Client registerClient(Person person) {
-        return Client.createClient(person);
+        Client newClient = Client.createClient(person);
+        actions.add("Registered new client: " + person.getName());
+        return newClient;
     }
 
     public void unregisterClient(Client client) {
         Client.removeClient(client);
+        actions.add("Unregistered client: " + client.getPerson().getName());
     }
 
     public List<Client> getActiveClients() {
@@ -64,6 +71,7 @@ public class Secretary {
     public Instructor hireInstructor(Person person, int hourlyRate, List<SessionType> admittedSessions) {
         Instructor newInstructor = Instructor.createInstructor(person, hourlyRate, admittedSessions);
         hired_instructors.add(newInstructor);
+        actions.add("Hired new instructor: " + person.getName() + " with salary per hour: " + hourlyRate);
         return newInstructor;
     }
 
@@ -75,20 +83,24 @@ public class Secretary {
     }
 
     // Method to create a session
-    public Session addSession(SessionType Type, String date_and_time,
-            ForumType forum, Instructor instructor) {
-        Session session = Session.createSession(Type, date_and_time, instructor, forum);
-        instructor.getAdmittedSessions().add(Type);
+    public Session addSession(SessionType type, String dateAndTime, ForumType forum, Instructor instructor) {
+        Session session = Session.createSession(type, dateAndTime, instructor, forum);
+        instructor.getAdmittedSessions().add(type);
+        sessions.add(session);
+        actions.add("Created new session: " + type + " on " + dateAndTime + " with instructor: "
+                + instructor.getPerson().getName());
         return session;
     }
 
     public void registerClientToLesson(Client client, Session session) {
         if (!isSessionFull(session) && isClientHasMoney(client, session) && isSessionStillAvailable(session)
-                && isSessionForumOk(session, client)) {
+                && isSessionForumOk(session, client) && !session.getAttendees().contains(client) && client.isActive()) {
             session.getAttendees().add(client);
             client.getPerson().setMoneyLeft(
                     client.getPerson().getMoneyLeft() - sessionPricing.get(session.getSessionType().toString()));
             gymMoney += sessionPricing.get(session.getSessionType().toString());
+            actions.add("Registered client: " + client.getPerson().getName() + " to session: "
+                    + session.getSessionType() + " on " + session.getDate_and_Time());
         }
     }
 
@@ -98,12 +110,13 @@ public class Secretary {
             client.getPerson().setMoneyLeft(
                     client.getPerson().getMoneyLeft() + sessionPricing.get(session.getSessionType().toString()));
             gymMoney -= sessionPricing.get(session.getSessionType().toString());
+            actions.add("Unregistered client: " + client.getPerson().getName() + " from session: "
+                    + session.getSessionType());
         }
     }
 
     private boolean isSessionFull(Session session) {
         return sessionAttendees.get(session.getSessionType().toString()) <= session.getAttendees().size();
-
     }
 
     private boolean isClientHasMoney(Client client, Session session) {
@@ -111,16 +124,9 @@ public class Secretary {
     }
 
     private boolean isSessionStillAvailable(Session session) {
-        // Define the formatter used in session date and time
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        // Combine the session's date and time into a single LocalDateTime
         LocalDateTime sessionDateTime = LocalDateTime.parse(session.getDate_and_Time(), formatter);
-
-        // Get the current date and time
         LocalDateTime now = LocalDateTime.now();
-
-        // Compare the session's date and time with the current date and time
         return sessionDateTime.isAfter(now);
     }
 
@@ -129,12 +135,12 @@ public class Secretary {
         Person person = client.getPerson();
 
         if (forum == null || person == null || person.getGender() == null) {
-            return false; // Handle null cases
+            return false;
         }
 
         switch (forum) {
             case "Female":
-                return "Female".equals(person.getGender()); // note - this is bad solution not good equals
+                return "Female".equals(person.getGender());
             case "Male":
                 return "Male".equals(person.getGender());
             case "Seniors":
@@ -150,11 +156,54 @@ public class Secretary {
         for (Instructor instructor : hired_instructors) {
             instructor.getPerson().setMoneyLeft(instructor.getPerson().getMoneyLeft() + instructor.getHourlyRate());
             gymMoney -= instructor.getHourlyRate();
+            actions.add("Paid salary to instructor: " + instructor.getPerson().getName() + " Salary: "
+                    + instructor.getHourlyRate());
         }
         person.setMoneyLeft(salary = +person.getMoneyLeft());
         gymMoney -= salary;
-        System.out.println(gymMoney + "is the gym's money");
-
+        actions.add("Paid salary to secretary: " + person.getName() + " Salary: " + salary);
     }
 
+    public void notify(String message) {
+        for (Client client : getActiveClients()) {
+            client.receiveMessage(message);
+        }
+        actions.add("A message was sent to all gym clients: " + message);
+    }
+
+    private void notifyClientsBySession(Session session, String message) {
+        for (Client client : session.getAttendees()) {
+            client.receiveMessage(message);
+        }
+        actions.add("A message was sent to everyone registered for session " + session.getSessionType() + " on "
+                + session.getDate_and_Time() + ": " + message);
+    }
+
+    private void notifyClientsByDate(LocalDateTime dateTime, String message) {
+        for (Session session : sessions) {
+            if (session.getDate_and_Time().equals(dateTime)) {
+                notifyClientsBySession(session, message);
+            }
+        }
+    }
+
+    public void notify(Object targetType, String message) {
+        if (targetType instanceof Session) {
+            notifyClientsBySession((Session) targetType, message);
+        } else if (targetType instanceof String) {
+            try {
+                LocalDateTime dateTime = LocalDateTime.parse((String) targetType,
+                        DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                notifyClientsByDate(dateTime, message);
+            } catch (Exception e) {
+                notify(message);
+            }
+        }
+    }
+
+    public void printActions() {
+        for (String action : actions) {
+            System.out.println(action);
+        }
+    }
 }
