@@ -22,7 +22,6 @@ public class Secretary {
     private NotificationCenter notificationCenter;
     private Gym_Info gym_info;
 
-
     private Secretary(Person person, int salary) {
         this.person = person;
         this.salary = salary;
@@ -43,7 +42,6 @@ public class Secretary {
             Secretary newSec = new Secretary(person, salary);
             instance = newSec;
         }
-
 
         NotificationCenter.logAction("A new secretary has started working at the gym: " + person.getName());
         return instance;
@@ -69,11 +67,13 @@ public class Secretary {
         }
     }
 
-    public Instructor hireInstructor(Person person, int hourlyRate, ArrayList<SessionType> qulifications) throws SecurityException {
+    public Instructor hireInstructor(Person person, int hourlyRate, ArrayList<SessionType> qulifications)
+            throws SecurityException {
         Instructor newInstructor = Instructor.createInstructor(person, hourlyRate, qulifications);
         if (this.gym_info.hireInstractor(newInstructor, this)) {
             NotificationCenter.registerInstructorObserver(newInstructor);
-            NotificationCenter.logAction("Hired new instructor: " + person.getName() + " with salary per hour: " + hourlyRate);
+            NotificationCenter
+                    .logAction("Hired new instructor: " + person.getName() + " with salary per hour: " + hourlyRate);
             return newInstructor;
         }
         return null;
@@ -92,7 +92,8 @@ public class Secretary {
         return null;
     }
 
-    public void registerClientToLesson(Client client, Session session) throws DuplicateClientException, ClientNotRegisteredException, NullPointerException {
+    public void registerClientToLesson(Client client, Session session)
+            throws DuplicateClientException, ClientNotRegisteredException, NullPointerException {
         boolean isOk = true;
         if (!(this.equals(Gym.getSecretary()))) {
             if (!this.active) {
@@ -105,34 +106,39 @@ public class Secretary {
             throw new DuplicateClientException("Error: The client is already registered for this lesson");
         }
         if (!NotificationCenter.isClientRegisterd(client)) {
-            throw new ClientNotRegisteredException("Error: The client is not registered with the gym and cannot enroll in lessons");
+            throw new ClientNotRegisteredException(
+                    "Error: The client is not registered with the gym and cannot enroll in lessons");
         }
-        if (this.gym_info.isSessionFull(session)){
+        if (this.gym_info.isSessionFull(session)) {
             NotificationCenter.logAction("Failed registration: No available spots for session");
             isOk = false;
         }
-        if(!this.gym_info.isSessionStillAvailable(session)){
+        if (!this.gym_info.isSessionStillAvailable(session)) {
             NotificationCenter.logAction("Failed registration: Session is not in the future");
             isOk = false;
         }
         if (!this.gym_info.isSessionForumOk(session, client)) {
-                if((session.getSessionForum().equals(ForumType.Male))||(session.getSessionForum().equals(ForumType.Female))) {
-                    NotificationCenter.logAction("Failed registration: Client's gender doesn't match the session's gender requirements");
-                    isOk = false;
-                }
-                else if(session.getSessionForum().equals(ForumType.Seniors)) {
-                NotificationCenter.logAction(String.format("Failed registration: Client doesn't meet the age requirements for this session (%s)", session.getSessionForum().toString()));
-                    isOk = false;
+            if ((session.getSessionForum().equals(ForumType.Male))
+                    || (session.getSessionForum().equals(ForumType.Female))) {
+                NotificationCenter.logAction(
+                        "Failed registration: Client's gender doesn't match the session's gender requirements");
+                isOk = false;
+            } else if (session.getSessionForum().equals(ForumType.Seniors)) {
+                NotificationCenter.logAction(String.format(
+                        "Failed registration: Client doesn't meet the age requirements for this session (%s)",
+                        session.getSessionForum().toString()));
+                isOk = false;
             }
         }
-        if(!this.gym_info.isClientHasMoney(client, session)){
+        if (!this.gym_info.isClientHasMoney(client, session)) {
             NotificationCenter.logAction("Failed registration: Client doesn't have enough balance");
             isOk = false;
         }
-        if (isOk){
+        if (isOk) {
             if (gym_info.registerClientToLesson(client, session, this)) {
                 NotificationCenter.logAction("Registered client: " + client.getPerson().getName() + " to session: "
-                        + session.getSessionType() + " on " + session.getDate_and_Time() + " for price " + gym_info.getSessionPrice(session));
+                        + session.getSessionType() + " on " + session.getDate_and_Time() + " for price "
+                        + gym_info.getSessionPrice(session));
             }
         }
 
@@ -168,22 +174,25 @@ public class Secretary {
     public void notify(Object targetType, String message) {
         if (targetType instanceof Session) {
             NotificationCenter.notifyBySession(message, (Session) targetType);
-            NotificationCenter.logAction(String.format("A message was sent to everyone registered for session %s on %s : %s" ,
-                    ((Session) targetType).getSessionType().toString(), ((Session) targetType).getDate_and_Time(),message));
+            NotificationCenter
+                    .logAction(String.format("A message was sent to everyone registered for session %s on %s : %s",
+                            ((Session) targetType).getSessionType().toString(),
+                            ((Session) targetType).getDate_and_Time(), message));
         } else if (targetType instanceof Instructor) {
             NotificationCenter.notifyInstructorObservers(message);
             NotificationCenter.logAction(String.format("A message was sent to all the instructors : %s", message));
         } else if (targetType instanceof String) {
             String date = String.valueOf(targetType);
             NotificationCenter.notifySessionObservers(message, date);
-            NotificationCenter.logAction(String.format("A message was sent to everyone registered for a session on %s : %s", targetType,message));
+            NotificationCenter.logAction(String
+                    .format("A message was sent to everyone registered for a session on %s : %s", targetType, message));
         }
     }
 
     public void paySalaries() {
         Map<Instructor, Integer> unpaidHours = notificationCenter.updateHours();
         System.out.println(unpaidHours.toString() + " ddd");
-        gym_info.paySalaries(unpaidHours,this);
+        gym_info.paySalaries(unpaidHours, this);
         NotificationCenter.logAction("Salaries have been paid to all employees");
     }
 
@@ -197,7 +206,6 @@ public class Secretary {
         return string.toString();
     }
 
-
     protected int getSalary() {
         return salary;
     }
@@ -205,7 +213,6 @@ public class Secretary {
     protected void pay() {
         person.changeBalance(salary);
     }
-
 
     public void printActions() {
         List<String> actionsList = NotificationCenter.getActionHistory();
@@ -231,4 +238,3 @@ public class Secretary {
         return gym_info.getMaxParticipants(sessionType);
     }
 }
-

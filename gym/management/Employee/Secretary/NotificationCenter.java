@@ -16,7 +16,8 @@ public class NotificationCenter {
     private static List<String> actions = new ArrayList<>();
 
     // Private constructor to prevent instantiation
-    private NotificationCenter() {}
+    NotificationCenter() {
+    }
 
     // Static method to get the single instance of NotificationCenter
     protected static NotificationCenter getInstance() {
@@ -27,23 +28,25 @@ public class NotificationCenter {
     }
 
     // Method to register an observer
-    public static void registerObserver(Observer observer)  {
+    protected static void registerObserver(Observer observer) {
         client_observers.add(observer);
     }
 
     // Method to unregister an observer
-    public static void unregisterObserver(Observer observer) throws ClientNotRegisteredException {
-        if(client_observers.contains(observer)){
+    protected static void unregisterObserver(Observer observer) throws ClientNotRegisteredException {
+        if (client_observers.contains(observer)) {
             client_observers.remove(observer);
-        }
-        else {
+        } else {
             throw new ClientNotRegisteredException("Error: Registration is required before attempting to unregister");
         }
     }
-    public static void registerSessionObserver(Observer observer) {
+
+    protected static void registerSessionObserver(Observer observer) {
         session_observers.add(observer);
     }
-    public static void registerInstructorObserver(Observer observer) {instructor_observer.add(observer);
+
+    protected static void registerInstructorObserver(Observer observer) {
+        instructor_observer.add(observer);
     }
 
     // Method to notify all observers
@@ -52,34 +55,38 @@ public class NotificationCenter {
             observer.update(message);
         }
     }
+
     protected static void notifySessionObservers(String message, String date) {
         for (Observer observer : session_observers) {
-            Session s = (Session)observer;
-            if(s.get_Date().equals(date)){
+            Session s = (Session) observer;
+            if (s.get_Date().equals(date)) {
                 s.update(message);
             }
         }
     }
+
     protected static void notifyInstructorObservers(String message) {
         for (Observer observer : instructor_observer) {
-                observer.update(message);
+            observer.update(message);
         }
     }
-    protected static void notifyBySession(String message, Session session){
+
+    protected static void notifyBySession(String message, Session session) {
         session.update(message);
     }
 
     protected static void logAction(String action) {
         actions.add(action);
     }
+
     protected static List<String> getActionHistory() {
         return actions;
     }
 
-    protected static Set<String> get_string(String type){
+    protected static Set<String> get_string(String type) {
         Set<String> toString = new TreeSet<>();
         Set<Observer> pointer = new HashSet<>();
-        switch (type){
+        switch (type) {
             case "Clients":
                 pointer = client_observers;
                 break;
@@ -89,27 +96,27 @@ public class NotificationCenter {
             case "Sessions":
                 pointer = session_observers;
         }
-        for (Observer obs: pointer) {;
+        for (Observer obs : pointer) {
+            ;
             toString.add(obs.toString());
         }
         return toString;
     }
 
-    protected static boolean isClientRegisterd(Client client){
+    protected static boolean isClientRegisterd(Client client) {
         return client_observers.contains(client);
     }
 
-    protected Map<Instructor,Integer> updateHours(){
-        Map<Instructor,Integer> unpaid_hours = new HashMap<>();
-        for (Observer session:session_observers) {
-            Session s = (Session)session;
-            if(!((Session) session).isPaid()){
+    protected Map<Instructor, Integer> updateHours() {
+        Map<Instructor, Integer> unpaid_hours = new HashMap<>();
+        for (Observer session : session_observers) {
+            Session s = (Session) session;
+            if (!((Session) session).isPaid()) {
                 Instructor instructor = ((Session) session).getInstructor();
                 unpaid_hours.put(instructor, unpaid_hours.getOrDefault(instructor, 0) + 1);
             }
 
-    }
+        }
         return unpaid_hours;
     }
 }
-
