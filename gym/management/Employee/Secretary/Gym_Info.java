@@ -100,8 +100,7 @@ public class Gym_Info {
         return this.getMaxParticipants(session.getSessionType()) <= session.getAttendees().size();
     }
 
-    protected boolean isClientHasMoney(Client client, Session session, Secretary caller) {
-        ensureSecretaryAccess(caller);
+    protected boolean isClientHasMoney(Client client, Session session) {
         return client.getPerson().getBalance() >= this.sessions_prices.get(session.getSessionType().toString());
     }
 
@@ -157,6 +156,7 @@ public class Gym_Info {
 
     protected int getBalance(Secretary caller) {
         ensureSecretaryAccess(caller);
+
         return this.balance;
     }
 

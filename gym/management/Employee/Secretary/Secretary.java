@@ -93,76 +93,78 @@ public class Secretary {
     }
 
     public void registerClientToLesson(Client client, Session session)
-            throws NullPointerException {
-        Map<String, String> exceptions = new HashMap<>();
+            throws DuplicateClientException, ClientNotRegisteredException, NullPointerException {
+        List<String> errorMessages = new ArrayList<>();
+        boolean isOk = true;
 
-        // Check if the current object is the correct secretary
+        // Check if the current user is the Secretary
         if (!(this.equals(Gym.getSecretary()))) {
             if (!this.active) {
-                throw new NullPointerException("Error: Former secretaries are not permitted to perform actions");
+                errorMessages.add("Error: Former secretaries are not permitted to perform actions");
+                isOk = false;
             } else {
-                exceptions.put("SecurityException", "Only the Secretary can register a Client.");
+                errorMessages.add("Only the Secretary can perform actions like registering a Client.");
+                isOk = false;
             }
         }
 
         // Check if the client is already registered for the session
         if (session.getAttendees().contains(client)) {
-            exceptions.put("DuplicateClientException", "The client is already registered for this lesson.");
+            errorMessages.add("Error: The client is already registered for this lesson");
+            isOk = false;
         }
 
         // Check if the client is registered with the gym
         if (!NotificationCenter.isClientRegisterd(client)) {
-            exceptions.put("ClientNotRegisteredException",
-                    "The client is not registered with the gym and cannot enroll in lessons.");
+            errorMessages.add("Error: The client is not registered with the gym and cannot enroll in lessons");
+            isOk = false;
         }
 
         // Check if the session is full
         if (this.gym_info.isSessionFull(session)) {
-            exceptions.put("SessionFullException", "No available spots for session.");
-            NotificationCenter.logAction("Failed registration: No available spots for session");
+            errorMessages.add("Failed registration: No available spots for session");
+            isOk = false;
         }
 
-        // Check if the session is in the future
+        // Check if the session is still available in the future
         if (!this.gym_info.isSessionStillAvailable(session)) {
-            exceptions.put("SessionNotAvailableException", "Session is not in the future.");
-            NotificationCenter.logAction("Failed registration: Session is not in the future");
+            errorMessages.add("Failed registration: Session is not in the future");
+            isOk = false;
         }
 
-        // Check if the session's forum matches the client's requirements
+        // Check if the client meets the session's gender/age requirements
         if (!this.gym_info.isSessionForumOk(session, client)) {
             if ((session.getSessionForum().equals(ForumType.Male))
                     || (session.getSessionForum().equals(ForumType.Female))) {
-                exceptions.put("ForumMismatchException",
-                        "Client's gender doesn't match the session's gender requirements.");
-                NotificationCenter.logAction(
-                        "Failed registration: Client's gender doesn't match the session's gender requirements");
+                errorMessages
+                        .add("Failed registration: Client's gender doesn't match the session's gender requirements");
+                isOk = false;
             } else if (session.getSessionForum().equals(ForumType.Seniors)) {
-                exceptions.put("AgeMismatchException", String.format(
-                        "Client doesn't meet the age requirements for this session (%s).",
-                        session.getSessionForum().toString()));
-                NotificationCenter.logAction(String.format(
+                errorMessages.add(String.format(
                         "Failed registration: Client doesn't meet the age requirements for this session (%s)",
                         session.getSessionForum().toString()));
+                isOk = false;
             }
         }
 
-        // Check if the client has enough balance
-        if (!this.gym_info.isClientHasMoney(client, session, this)) {
-            exceptions.put("InsufficientBalanceException", "Client doesn't have enough balance.");
-            NotificationCenter.logAction("Failed registration: Client doesn't have enough balance");
+        // Check if the client has enough money to register
+        if (!this.gym_info.isClientHasMoney(client, session)) {
+            errorMessages.add("Failed registration: Client doesn't have enough balance");
+            isOk = false;
         }
 
-        // If there are no exceptions, proceed with registration
-        if (exceptions.isEmpty()) {
+        // If no issues found, register the client
+        if (isOk) {
             if (gym_info.registerClientToLesson(client, session, this)) {
                 NotificationCenter.logAction("Registered client: " + client.getPerson().getName() + " to session: "
                         + session.getSessionType() + " on " + session.getDate_and_Time() + " for price "
                         + gym_info.getSessionPrice(session));
             }
         } else {
-            // Print all the exceptions
-            System.out.println("Registration failed for the following reasons:");
-            exceptions.forEach((key, value) -> System.out.println(key + ": " + value));
+            // Print all error messages if registration failed
+            for (String errorMessage : errorMessages) {
+                NotificationCenter.logAction(errorMessage);
+            }
         }
     }
 
