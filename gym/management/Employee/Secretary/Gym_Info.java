@@ -1,6 +1,5 @@
 package gym.management.Employee.Secretary;
 
-import com.sun.source.tree.BreakTree;
 import gym.Gym;
 import gym.Person;
 import gym.customers.Client;
@@ -36,70 +35,64 @@ public class Gym_Info {
         sessions_prices.put((String.valueOf(SessionType.Ninja)), 150);
     }
 
-    protected void setBalance(int balance) {
+    private void ensureSecretaryAccess(Secretary caller) {
+        if (!Gym.getSecretary().equals(caller)) {
+            throw new SecurityException("Access denied: Only the Secretary can perform this action.");
+        }
+    }
+
+    protected void setBalance(int balance, Secretary caller) {
+        ensureSecretaryAccess(caller);
         this.balance = balance;
     }
 
     protected boolean add_session(Session session, Secretary caller) {
-        if (!Gym.getSecretary().equals(caller)) {
-            throw new SecurityException("Only the Secretary can create a Client.");
-        } else {
-
-            this.gym_sessions.add(session);
-            return true;
-        }
+        ensureSecretaryAccess(caller);
+        this.gym_sessions.add(session);
+        return true;
     }
 
     protected boolean registerClient(Client client, Secretary caller)
             throws SecurityException, DuplicateClientException {
-        if (!Gym.getSecretary().equals(caller)) {
-            throw new SecurityException("Only the Secretary can create a Client.");
-        } else {
-            client.getPerson().register();
-            NotificationCenter.registerObserver(client);
-            return true;
-        }
+        ensureSecretaryAccess(caller);
+        client.getPerson().register();
+        NotificationCenter.registerObserver(client);
+        return true;
     }
 
     protected boolean unregisterClient(Client client, Secretary caller)
             throws SecurityException, ClientNotRegisteredException {
-        if (!Gym.getSecretary().equals(caller)) {
-            throw new SecurityException("Error: Only the Secretary can unregister a Client.");
-        } else {
-            client.getPerson().unregister();
-            NotificationCenter.unregisterObserver(client);
-            return true;
-        }
+        ensureSecretaryAccess(caller);
+        client.getPerson().unregister();
+        NotificationCenter.unregisterObserver(client);
+        return true;
     }
 
-    protected boolean hireInstractor(Instructor instractor, Secretary caller) {
-        if (!Gym.getSecretary().equals(caller)) {
-            throw new SecurityException("Error: Only the Secretary can hire an Instructor.");
-        }
-        NotificationCenter.registerInstructorObserver(instractor);
+    protected boolean hireInstructor(Instructor instructor, Secretary caller) {
+        ensureSecretaryAccess(caller);
+        NotificationCenter.registerInstructorObserver(instructor);
         return true;
     }
 
     protected boolean registerClientToLesson(Client client, Session session, Secretary caller) {
-        if (!Gym.getSecretary().equals(caller)) {
-            throw new SecurityException("Error: Only the Secretary can unregister a Client.");
-        } else {
-            session.addAttendee(client);
-            client.getPerson().changeBalance(-this.getSessionPrice(session));
-            this.changeGymBalance(this.getSessionPrice(session));
-            return true;
-        }
+        ensureSecretaryAccess(caller);
+        session.addAttendee(client);
+        client.getPerson().changeBalance(-this.getSessionPrice(session));
+        this.changeGymBalance(this.getSessionPrice(session));
+        return true;
     }
 
     protected void unregisterClientFromLesson(Client client, Session session, Secretary caller)
             throws ClientNotRegisteredException {
+        ensureSecretaryAccess(caller);
         if (session.getAttendees().contains(client)) {
             session.getAttendees().remove(client);
             client.getPerson().changeBalance(this.getSessionPrice(session));
-            NotificationCenter.logAction("change balance for" + client.getName() + this.getSessionPrice(session));
+            NotificationCenter
+                    .logAction("change balance for " + client.getName() + " " + this.getSessionPrice(session));
             this.balance -= this.getSessionPrice(session);
         } else {
-            throw new ClientNotRegisteredException("Error: client not registerd to this lesson");
+            throw new ClientNotRegisteredException("Error: client not registered to this lesson");
         }
     }
 
@@ -107,7 +100,8 @@ public class Gym_Info {
         return this.getMaxParticipants(session.getSessionType()) <= session.getAttendees().size();
     }
 
-    protected boolean isClientHasMoney(Client client, Session session) {
+    protected boolean isClientHasMoney(Client client, Session session, Secretary caller) {
+        ensureSecretaryAccess(caller);
         return client.getPerson().getBalance() >= this.sessions_prices.get(session.getSessionType().toString());
     }
 
@@ -149,23 +143,20 @@ public class Gym_Info {
     }
 
     protected void paySalaries(Map<Instructor, Integer> unpaid_hours, Secretary caller) {
-
-        if (Gym.getSecretary().equals(caller)) {
-            for (Map.Entry<Instructor, Integer> unpaid : unpaid_hours.entrySet()) {
-                Instructor instructor = unpaid.getKey();
-                int rate = instructor.getHourlyRate();
-                int salary = rate * unpaid.getValue();
-                instructor.getPerson().changeBalance(salary);
-                this.balance -= salary;
-            }
-            caller.pay();
-            this.balance -= caller.getSalary();
-        } else {
-            throw new SecurityException("Only Secretry aloowed...");
+        ensureSecretaryAccess(caller);
+        for (Map.Entry<Instructor, Integer> unpaid : unpaid_hours.entrySet()) {
+            Instructor instructor = unpaid.getKey();
+            int rate = instructor.getHourlyRate();
+            int salary = rate * unpaid.getValue();
+            instructor.getPerson().changeBalance(salary);
+            this.balance -= salary;
         }
+        caller.pay();
+        this.balance -= caller.getSalary();
     }
 
-    protected int getBalance() {
+    protected int getBalance(Secretary caller) {
+        ensureSecretaryAccess(caller);
         return this.balance;
     }
 
@@ -180,5 +171,4 @@ public class Gym_Info {
     protected int getMaxParticipants(SessionType sessionType) {
         return sessions_max_participants.get(sessionType.toString());
     }
-
 }

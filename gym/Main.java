@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Main {
-    public static void main(String[] args) throws InstructorNotQualifiedException, DuplicateClientException, InvalidAgeException, ClientNotRegisteredException {
+    public static void main(String[] args) throws InstructorNotQualifiedException, DuplicateClientException,
+            InvalidAgeException, ClientNotRegisteredException {
         Person p1 = new Person("David", 500, Gender.Male, "20-02-1978");
         Person p2 = new Person("Nofar", 1200, Gender.Female, "03-07-1998");
         Person p3 = new Person("Maayan", 200, Gender.Female, "21-12-2005");
@@ -52,16 +53,18 @@ public class Main {
 
         try {
             gymSecretary.unregisterClient(c2);
-        }
-        catch (ClientNotRegisteredException e) {
+        } catch (ClientNotRegisteredException e) {
             System.out.println(e.getMessage());
         }
 
         c2 = gymSecretary.registerClient(p3);
 
-        Instructor i1 = gymSecretary.hireInstructor(p4, 70, new ArrayList<>(Arrays.asList(SessionType.ThaiBoxing, SessionType.MachinePilates)));
-        Instructor i2 = gymSecretary.hireInstructor(p5, 90, new ArrayList<>(Arrays.asList(SessionType.ThaiBoxing, SessionType.Pilates, SessionType.MachinePilates)));
-        Instructor i3 = gymSecretary.hireInstructor(p6,50, new ArrayList<>(Arrays.asList(SessionType.Pilates, SessionType.Ninja)));
+        Instructor i1 = gymSecretary.hireInstructor(p4, 70,
+                new ArrayList<>(Arrays.asList(SessionType.ThaiBoxing, SessionType.MachinePilates)));
+        Instructor i2 = gymSecretary.hireInstructor(p5, 90, new ArrayList<>(
+                Arrays.asList(SessionType.ThaiBoxing, SessionType.Pilates, SessionType.MachinePilates)));
+        Instructor i3 = gymSecretary.hireInstructor(p6, 50,
+                new ArrayList<>(Arrays.asList(SessionType.Pilates, SessionType.Ninja)));
 
         Session s1 = gymSecretary.addSession(SessionType.Pilates, "23-01-2025 10:00", ForumType.All, i2);
         Session s2 = gymSecretary.addSession(SessionType.MachinePilates, "23-10-2024 08:00", ForumType.Female, i1);
@@ -91,9 +94,8 @@ public class Main {
         gymSecretary.registerClientToLesson(c6, s5);
         gymSecretary.registerClientToLesson(c7, s5);
 
-
-        try{
-            gymSecretary.registerClientToLesson(c1,s1);
+        try {
+            gymSecretary.registerClientToLesson(c1, s1);
         } catch (DuplicateClientException e) {
             System.out.println(e.getMessage());
         }
@@ -106,18 +108,18 @@ public class Main {
         }
 
         gymSecretary.notify(s4, "The instructor will be a few minutes late for the session");
-        gymSecretary.notify("01-01-2025", "Heavy traffic reported around the gym today. Plan ahead to avoid missing your session!");
+        gymSecretary.notify("01-01-2025",
+                "Heavy traffic reported around the gym today. Plan ahead to avoid missing your session!");
         gymSecretary.notify("Happy New Year to all our valued clients!");
 
         gymSecretary.paySalaries();
 
-        gym.setSecretary(p3,8000);
+        gym.setSecretary(p3, 8000);
         Secretary newGymSecretary = gym.getSecretary();
 
-        try{
+        try {
             gymSecretary.registerClientToLesson(c1, s1);
-        }
-        catch (NullPointerException e){
+        } catch (NullPointerException e) {
             System.out.println("Error: Former secretaries are not permitted to perform actions");
         }
 
@@ -130,7 +132,5 @@ public class Main {
 
         System.out.print(gym);
     }
-
-
 
 }

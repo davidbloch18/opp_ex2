@@ -70,7 +70,7 @@ public class Secretary {
     public Instructor hireInstructor(Person person, int hourlyRate, ArrayList<SessionType> qulifications)
             throws SecurityException {
         Instructor newInstructor = Instructor.createInstructor(person, hourlyRate, qulifications);
-        if (this.gym_info.hireInstractor(newInstructor, this)) {
+        if (this.gym_info.hireInstructor(newInstructor, this)) {
             NotificationCenter.registerInstructorObserver(newInstructor);
             NotificationCenter
                     .logAction("Hired new instructor: " + person.getName() + " with salary per hour: " + hourlyRate);
@@ -93,55 +93,77 @@ public class Secretary {
     }
 
     public void registerClientToLesson(Client client, Session session)
-            throws DuplicateClientException, ClientNotRegisteredException, NullPointerException {
-        boolean isOk = true;
+            throws NullPointerException {
+        Map<String, String> exceptions = new HashMap<>();
+
+        // Check if the current object is the correct secretary
         if (!(this.equals(Gym.getSecretary()))) {
             if (!this.active) {
                 throw new NullPointerException("Error: Former secretaries are not permitted to perform actions");
             } else {
-                throw new SecurityException("Only the Secretary can *** a Client.");
+                exceptions.put("SecurityException", "Only the Secretary can register a Client.");
             }
         }
+
+        // Check if the client is already registered for the session
         if (session.getAttendees().contains(client)) {
-            throw new DuplicateClientException("Error: The client is already registered for this lesson");
+            exceptions.put("DuplicateClientException", "The client is already registered for this lesson.");
         }
+
+        // Check if the client is registered with the gym
         if (!NotificationCenter.isClientRegisterd(client)) {
-            throw new ClientNotRegisteredException(
-                    "Error: The client is not registered with the gym and cannot enroll in lessons");
+            exceptions.put("ClientNotRegisteredException",
+                    "The client is not registered with the gym and cannot enroll in lessons.");
         }
+
+        // Check if the session is full
         if (this.gym_info.isSessionFull(session)) {
+            exceptions.put("SessionFullException", "No available spots for session.");
             NotificationCenter.logAction("Failed registration: No available spots for session");
-            isOk = false;
         }
+
+        // Check if the session is in the future
         if (!this.gym_info.isSessionStillAvailable(session)) {
+            exceptions.put("SessionNotAvailableException", "Session is not in the future.");
             NotificationCenter.logAction("Failed registration: Session is not in the future");
-            isOk = false;
         }
+
+        // Check if the session's forum matches the client's requirements
         if (!this.gym_info.isSessionForumOk(session, client)) {
             if ((session.getSessionForum().equals(ForumType.Male))
                     || (session.getSessionForum().equals(ForumType.Female))) {
+                exceptions.put("ForumMismatchException",
+                        "Client's gender doesn't match the session's gender requirements.");
                 NotificationCenter.logAction(
                         "Failed registration: Client's gender doesn't match the session's gender requirements");
-                isOk = false;
             } else if (session.getSessionForum().equals(ForumType.Seniors)) {
+                exceptions.put("AgeMismatchException", String.format(
+                        "Client doesn't meet the age requirements for this session (%s).",
+                        session.getSessionForum().toString()));
                 NotificationCenter.logAction(String.format(
                         "Failed registration: Client doesn't meet the age requirements for this session (%s)",
                         session.getSessionForum().toString()));
-                isOk = false;
             }
         }
-        if (!this.gym_info.isClientHasMoney(client, session)) {
+
+        // Check if the client has enough balance
+        if (!this.gym_info.isClientHasMoney(client, session, this)) {
+            exceptions.put("InsufficientBalanceException", "Client doesn't have enough balance.");
             NotificationCenter.logAction("Failed registration: Client doesn't have enough balance");
-            isOk = false;
         }
-        if (isOk) {
+
+        // If there are no exceptions, proceed with registration
+        if (exceptions.isEmpty()) {
             if (gym_info.registerClientToLesson(client, session, this)) {
                 NotificationCenter.logAction("Registered client: " + client.getPerson().getName() + " to session: "
                         + session.getSessionType() + " on " + session.getDate_and_Time() + " for price "
                         + gym_info.getSessionPrice(session));
             }
+        } else {
+            // Print all the exceptions
+            System.out.println("Registration failed for the following reasons:");
+            exceptions.forEach((key, value) -> System.out.println(key + ": " + value));
         }
-
     }
 
     public void unregisterClientFromLesson(Client client, Session session) throws ClientNotRegisteredException {
@@ -226,7 +248,7 @@ public class Secretary {
     }
 
     public int getGymMoney() {
-        return gym_info.getBalance();
+        return gym_info.getBalance(this);
     }
 
     @Override
