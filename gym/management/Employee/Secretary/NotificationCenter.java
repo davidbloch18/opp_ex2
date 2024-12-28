@@ -10,9 +10,9 @@ import gym.management.Sessions.Session;
 
 public class NotificationCenter {
     private static NotificationCenter instance;
-    private static Set<Observer> client_observers = new HashSet<>();
-    private static Set<Observer> session_observers = new HashSet<>();
-    private static Set<Observer> instructor_observer = new HashSet<>();
+    private static List<Observer> client_observers = new ArrayList<>();
+    private static List<Observer> session_observers = new ArrayList<>();
+    private static List<Observer> instructor_observer = new ArrayList<>();
     private static List<String> actions = new ArrayList<>();
 
     // Private constructor to prevent instantiation
@@ -114,10 +114,10 @@ public class NotificationCenter {
         return actions;
     }
 
-    protected static Set<String> get_string(String type) {
+    protected static List<String> get_string(String type) {
         ensureSecretaryAccess();
-        Set<String> toString = new TreeSet<>();
-        Set<Observer> pointer = new HashSet<>();
+        List<String> toString = new ArrayList<>();
+        List<Observer> pointer = new ArrayList<>();
         switch (type) {
             case "Clients":
                 pointer = client_observers;
@@ -129,7 +129,6 @@ public class NotificationCenter {
                 pointer = session_observers;
         }
         for (Observer obs : pointer) {
-            ;
             toString.add(obs.toString());
         }
         return toString;

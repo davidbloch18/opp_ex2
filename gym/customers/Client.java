@@ -64,9 +64,9 @@ public class Client implements Observer {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj.getClass() == getClass()) {
+        if (obj.getClass() == getClass() && ((Client) obj).person.getName() == person.getName()) {
             Client other = (Client) obj;
-            return !this.person.equals(other.person);
+            return this.person.equals(other.person);
         }
         return false;
     }

@@ -14,14 +14,16 @@ public class Gym {
     private Gym(String name) {
         this.name = name;
     }
+
     public static Gym getInstance() {
         if (instance == null) {
             instance = new Gym("Gym Name default");
         }
         return instance;
     }
+
     public void setSecretary(Person p, int salary) {
-        if (secretary!=null){
+        if (secretary != null) {
             secretary.changeActive();
         }
 
@@ -31,17 +33,19 @@ public class Gym {
     public static Secretary getSecretary() {
         return secretary;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("Gym Name: %s\nGym Secretary: %s\nGym Balance: %d" +
-                        "\n" +
-                        "\nClients Data: %s\n" +
-                        "\nEmployees Data: %s\n " +
-                        "\nSessions Data: %s",
+                "\n" +
+                "\nClients Data: %s\n" +
+                "\nEmployees Data: %s\n%s\n " +
+                "\nSessions Data: %s",
                 this.name, secretary.toString(), secretary.getGymMoney(), secretary.get_string("Clients"),
-                    secretary.get_string("Instructor"), secretary.get_string("Sessions"));
+                secretary.get_string("Instructor"), secretary.toString(), secretary.get_string("Sessions"));
     }
 }

@@ -13,14 +13,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Gym_Info {
-    private int balance = -7400;
-    private Set<Session> gym_sessions;
+    private int balance = 9420;
+    private List<Session> gym_sessions;
     private Map<String, Integer> sessions_max_participants;
     private Map<String, Integer> sessions_prices;
 
     Gym_Info() {
         this.balance = 0;
-        this.gym_sessions = new HashSet<>();
+        this.gym_sessions = new ArrayList<>();
 
         this.sessions_max_participants = new HashMap<>();
         this.sessions_max_participants.put((String.valueOf(SessionType.Pilates)), 30);

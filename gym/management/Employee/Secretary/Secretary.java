@@ -100,14 +100,30 @@ public class Secretary {
         // Check if the current user is the Secretary
         if (!(this.equals(Gym.getSecretary()))) {
             if (!this.active) {
-                errorMessages.add("Error: Former secretaries are not permitted to perform actions");
                 isOk = false;
+                throw new NullPointerException("Error: Former secretaries are not permitted to perform actions");
+
             } else {
-                errorMessages.add("Only the Secretary can perform actions like registering a Client.");
                 isOk = false;
+                throw new SecurityException("Only the Secretary can perform actions like registering a Client.");
+
             }
         }
 
+        // Check if the client meets the session's gender/age requirements
+        if (!this.gym_info.isSessionForumOk(session, client)) {
+            if ((session.getSessionForum().equals(ForumType.Male))
+                    || (session.getSessionForum().equals(ForumType.Female))) {
+                errorMessages
+                        .add("Failed registration: Client's gender doesn't match the session's gender requirements");
+                isOk = false;
+            } else if (session.getSessionForum().equals(ForumType.Seniors)) {
+                errorMessages.add(String.format(
+                        "Failed registration: Client doesn't meet the age requirements for this session (%s)",
+                        session.getSessionForum().toString()));
+                isOk = false;
+            }
+        }
         // Check if the client is already registered for the session
         if (session.getAttendees().contains(client)) {
             errorMessages.add("Error: The client is already registered for this lesson");
@@ -132,21 +148,6 @@ public class Secretary {
             isOk = false;
         }
 
-        // Check if the client meets the session's gender/age requirements
-        if (!this.gym_info.isSessionForumOk(session, client)) {
-            if ((session.getSessionForum().equals(ForumType.Male))
-                    || (session.getSessionForum().equals(ForumType.Female))) {
-                errorMessages
-                        .add("Failed registration: Client's gender doesn't match the session's gender requirements");
-                isOk = false;
-            } else if (session.getSessionForum().equals(ForumType.Seniors)) {
-                errorMessages.add(String.format(
-                        "Failed registration: Client doesn't meet the age requirements for this session (%s)",
-                        session.getSessionForum().toString()));
-                isOk = false;
-            }
-        }
-
         // Check if the client has enough money to register
         if (!this.gym_info.isClientHasMoney(client, session)) {
             errorMessages.add("Failed registration: Client doesn't have enough balance");
@@ -169,6 +170,7 @@ public class Secretary {
     }
 
     public void unregisterClientFromLesson(Client client, Session session) throws ClientNotRegisteredException {
+
         this.gym_info.unregisterClientFromLesson(client, session, this);
         NotificationCenter.logAction("Unregistered client: " + client.getPerson().getName() + " from session: "
                 + session.getSessionType());
@@ -221,7 +223,7 @@ public class Secretary {
     }
 
     public String get_string(String type) {
-        Set<String> toString = NotificationCenter.get_string(type);
+        List<String> toString = NotificationCenter.get_string(type);
         StringBuilder string = new StringBuilder();
         for (String obj : toString) {
             string.append("\n");
