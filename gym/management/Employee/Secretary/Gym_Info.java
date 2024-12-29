@@ -129,9 +129,9 @@ public class Gym_Info {
         }
         switch (forum) {
             case "Female":
-                return "Female".equals(person.getGender());
+                return "Female".equals(person.getGender().toString());
             case "Male":
-                return "Male".equals(person.getGender());
+                return "Male".equals(person.getGender().toString());
             case "Seniors":
                 return person.getAge() >= 65;
             case "All":

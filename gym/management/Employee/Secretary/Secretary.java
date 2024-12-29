@@ -231,7 +231,6 @@ public class Secretary {
 
     public void paySalaries() {
         Map<Instructor, Integer> unpaidHours = notificationCenter.updateHours();
-        System.out.println(unpaidHours.toString() + " ddd");
         gym_info.paySalaries(unpaidHours, this);
         NotificationCenter.logAction("Salaries have been paid to all employees");
     }
