@@ -51,6 +51,18 @@ public class Secretary {
         this.active = !this.active;
     }
 
+    public static String convertToISOFormat(String dateTimeString) {
+        String inputFormat = "dd-MM-yyyy HH:mm";
+        // Define the formatter for parsing the input format
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(inputFormat);
+
+        // Parse the input string to LocalDateTime
+        LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, inputFormatter);
+
+        // Format to ISO_LOCAL_DATE_TIME
+        return dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).substring(0, 16);
+    }
+
     public Client registerClient(Person person) throws InvalidAgeException, DuplicateClientException {
         Client new_client = Client.createClient(person, this);
         if (this.gym_info.registerClient(new_client, this)) {
@@ -85,8 +97,9 @@ public class Secretary {
         Session session = Session.createSession(type, dateAndTime, instructor, forum);
         if (this.gym_info.add_session(session, this)) {
             NotificationCenter.registerSessionObserver(session);
-            NotificationCenter.logAction("Created new session: " + type + " on " + dateAndTime + " with instructor: "
-                    + session.getInstructor().getPerson().getName());
+            NotificationCenter.logAction(
+                    "Created new session: " + type + " on " + convertToISOFormat(dateAndTime) + " with instructor: "
+                            + session.getInstructor().getPerson().getName());
             return session;
         }
         return null;
@@ -158,7 +171,8 @@ public class Secretary {
         if (isOk) {
             if (gym_info.registerClientToLesson(client, session, this)) {
                 NotificationCenter.logAction("Registered client: " + client.getPerson().getName() + " to session: "
-                        + session.getSessionType() + " on " + session.getDate_and_Time() + " for price "
+                        + session.getSessionType() + " on "
+                        + convertToISOFormat(session.getDate_and_Time()) + " for price: "
                         + gym_info.getSessionPrice(session));
             }
         } else {

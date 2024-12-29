@@ -1,7 +1,6 @@
 package gym.management.Employee.Secretary;
 
 import java.util.*;
-
 import gym.Exception.ClientNotRegisteredException;
 import gym.Exception.DuplicateClientException;
 import gym.customers.Client;
