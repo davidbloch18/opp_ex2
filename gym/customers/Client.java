@@ -54,6 +54,10 @@ public class Client implements Observer {
         return person;
     }
 
+    public boolean isSenior() {
+        return this.person.getAge() >= 65;
+    }
+
     public List<String> getNotifications() {
         return messages;
     }

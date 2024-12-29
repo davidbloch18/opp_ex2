@@ -1,6 +1,7 @@
 package gym.management.Employee.Secretary;
 
 import gym.ForumType;
+import gym.Gender;
 import gym.Gym;
 import gym.Person;
 import gym.SessionType;
@@ -113,51 +114,50 @@ public class Secretary {
         // Check if the current user is the Secretary
         if (!(this.equals(Gym.getSecretary()))) {
             if (!this.active) {
-                isOk = false;
                 throw new NullPointerException("Error: Former secretaries are not permitted to perform actions");
-
             } else {
-                isOk = false;
                 throw new SecurityException("Only the Secretary can perform actions like registering a Client.");
-
             }
         }
 
-        // Check if the client meets the session's gender/age requirements
+        // Check if the session is still available in the future
+        if (!this.gym_info.isSessionStillAvailable(session)) {
+            errorMessages.add("Failed registration: Session is not in the future");
+            isOk = false;
+        }
+
+        // Check if the client meets the session's gender requirements
         if (!this.gym_info.isSessionForumOk(session, client)) {
             if ((session.getSessionForum().equals(ForumType.Male))
                     || (session.getSessionForum().equals(ForumType.Female))) {
                 errorMessages
                         .add("Failed registration: Client's gender doesn't match the session's gender requirements");
                 isOk = false;
-            } else if (session.getSessionForum().equals(ForumType.Seniors)) {
-                errorMessages.add(String.format(
-                        "Failed registration: Client doesn't meet the age requirements for this session (%s)",
-                        session.getSessionForum().toString()));
-                isOk = false;
             }
         }
+
+        // Check if the client's age meets the session's age requirements
+        if (session.getSessionForum().equals(ForumType.Seniors) && !client.isSenior()) {
+            errorMessages.add(String.format(
+                    "Failed registration: Client doesn't meet the age requirements for this session (%s)",
+                    session.getSessionForum().toString()));
+            isOk = false;
+        }
+
         // Check if the client is already registered for the session
         if (session.getAttendees().contains(client)) {
-            errorMessages.add("Error: The client is already registered for this lesson");
-            isOk = false;
+            throw new DuplicateClientException("Error: The client is already registered for this lesson");
         }
 
         // Check if the client is registered with the gym
         if (!NotificationCenter.isClientRegisterd(client)) {
-            errorMessages.add("Error: The client is not registered with the gym and cannot enroll in lessons");
-            isOk = false;
+            throw new ClientNotRegisteredException(
+                    "Error: The client is not registered with the gym and cannot enroll in lessons");
         }
 
         // Check if the session is full
         if (this.gym_info.isSessionFull(session)) {
             errorMessages.add("Failed registration: No available spots for session");
-            isOk = false;
-        }
-
-        // Check if the session is still available in the future
-        if (!this.gym_info.isSessionStillAvailable(session)) {
-            errorMessages.add("Failed registration: Session is not in the future");
             isOk = false;
         }
 
