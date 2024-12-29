@@ -62,7 +62,7 @@ public class Instructor implements Observer {
     @Override
     public String toString() {
         String qualifications = this.qualifications.toString();
-        return String.format("%s | Role: Instructor | Salary per Hour: %d | Certified Classes:%s ",
+        return String.format("%s | Role: Instructor | Salary per Hour: %d | Certified Classes: %s",
                 this.person.toString(), this.hourly_rate, qualifications.replaceAll("[\\[\\]]", ""));
     }
 }
