@@ -84,7 +84,7 @@ public class Secretary {
             throws SecurityException {
         Instructor newInstructor = Instructor.createInstructor(person, hourlyRate, qulifications);
         if (this.gym_info.hireInstructor(newInstructor, this)) {
-            NotificationCenter.registerInstructorObserver(newInstructor);
+
             NotificationCenter
                     .logAction("Hired new instructor: " + person.getName() + " with salary per hour: " + hourlyRate);
             return newInstructor;
