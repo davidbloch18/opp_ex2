@@ -11,6 +11,8 @@ import gym.management.Employee.Instructor.Instructor;
 import gym.management.Sessions.*;
 
 import java.lang.ref.WeakReference;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -217,15 +219,22 @@ public class Secretary {
             NotificationCenter
                     .logAction(String.format("A message was sent to everyone registered for session %s on %s : %s",
                             ((Session) targetType).getSessionType().toString(),
-                            ((Session) targetType).getDate_and_Time(), message));
+                            convertToISOFormat(((Session) targetType).getDate_and_Time()), message));
         } else if (targetType instanceof Instructor) {
             NotificationCenter.notifyInstructorObservers(message);
             NotificationCenter.logAction(String.format("A message was sent to all the instructors : %s", message));
         } else if (targetType instanceof String) {
             String date = String.valueOf(targetType);
-            NotificationCenter.notifySessionObservers(message, date);
-            NotificationCenter.logAction(String
-                    .format("A message was sent to everyone registered for a session on %s : %s", targetType, message));
+            try {
+                String formattedDate = new SimpleDateFormat("yyyy-MM-dd")
+                        .format(new SimpleDateFormat("dd-MM-yyyy").parse(date));
+                NotificationCenter.notifySessionObservers(message, date);
+                NotificationCenter.logAction(String
+                        .format("A message was sent to everyone registered for a session on %s : %s", formattedDate,
+                                message));
+            } catch (ParseException e) {
+                System.out.println("Date format is incorrect");
+            }
         }
     }
 

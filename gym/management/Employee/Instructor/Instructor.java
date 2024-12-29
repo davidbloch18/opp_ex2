@@ -13,7 +13,6 @@ public class Instructor implements Observer {
     private ArrayList<SessionType> qualifications = new ArrayList<>();
     private ArrayList<String> messages = new ArrayList<>();
 
-
     // Private constructor
     private Instructor(Person p, int hourly_rate, ArrayList<SessionType> qualifications) {
         this.person = p;
@@ -26,10 +25,9 @@ public class Instructor implements Observer {
         return new Instructor(p, hourly_rate, qualifications);
     }
 
-    public void pay(int amount){
+    public void pay(int amount) {
         this.person.changeBalance(amount);
     }
-
 
     // Getters and Setters
     public int getHourlyRate() {
@@ -40,7 +38,6 @@ public class Instructor implements Observer {
         this.hourly_rate = hourly_rate;
     }
 
-
     public Person getPerson() {
         return person;
     }
@@ -48,10 +45,12 @@ public class Instructor implements Observer {
     public void setPerson(Person person) {
         this.person = person;
     }
-    public ArrayList<SessionType> getQualifications(){
+
+    public ArrayList<SessionType> getQualifications() {
         return this.qualifications;
     }
-    public void addQualification(SessionType sessionType){
+
+    public void addQualification(SessionType sessionType) {
         this.qualifications.add(sessionType);
     }
 
@@ -61,9 +60,9 @@ public class Instructor implements Observer {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String qualifications = this.qualifications.toString();
-        return String.format("%s | Role: Instructor | Salary per Hour: %d | Certified Classes: %s ",
-                this.person.toString(),this.hourly_rate,qualifications.replaceAll("[\\[\\]]", ""));
+        return String.format("%s | Role: Instructor | Salary per Hour: %d | Certified Classes:%s ",
+                this.person.toString(), this.hourly_rate, qualifications.replaceAll("[\\[\\]]", ""));
     }
 }

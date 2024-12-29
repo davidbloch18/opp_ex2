@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Gym_Info {
-    private int balance = 9420;
+    private int balance;
     private List<Session> gym_sessions;
     private Map<String, Integer> sessions_max_participants;
     private Map<String, Integer> sessions_prices;

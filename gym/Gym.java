@@ -42,9 +42,9 @@ public class Gym {
     public String toString() {
         return String.format("Gym Name: %s\nGym Secretary: %s\nGym Balance: %d" +
                 "\n" +
-                "\nClients Data: %s\n" +
-                "\nEmployees Data: %s\n%s\n " +
-                "\nSessions Data: %s",
+                "\nClients Data:%s\n" +
+                "\nEmployees Data:%s\n%s\n" +
+                "\nSessions Data:%s",
                 this.name, secretary.toString(), secretary.getGymMoney(), secretary.get_string("Clients"),
                 secretary.get_string("Instructor"), secretary.toString(), secretary.get_string("Sessions"));
     }
